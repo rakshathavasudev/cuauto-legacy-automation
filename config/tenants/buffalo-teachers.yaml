@@ -1,0 +1,8 @@
+# Tenant = one institution. Only deltas from the app profile live here.
+tenant_id: buffalo-teachers
+display_name: Buffalo Teachers FCU (fictional)
+app_id: legacy-corebank
+product_version: "4.2.3"
+base_url: http://127.0.0.1:8401
+credentials: {username_env: BTFCU_USERNAME, password_env: BTFCU_PASSWORD}
+label_aliases: {}

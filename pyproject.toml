@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cuauto"
+version = "0.1.0"
+description = "Computer-use discovery -> reviewable capability artifacts -> deterministic replay, with human handoff"
+requires-python = ">=3.11"
+dependencies = [
+  "playwright>=1.44",
+  "anthropic>=0.40",
+  "pydantic>=2.6",
+  "pyyaml>=6.0",
+  "fastapi>=0.110",
+  "uvicorn>=0.29",
+  "python-multipart>=0.0.9",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+cuauto = "cuauto.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src", "."]
+include = ["cuauto*", "mock_bank*"]
+
+[tool.setuptools.package-data]
+cuauto = ["storage/migrations/*.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["e2e: drives a real browser against the mock bank (needs playwright chromium)"]

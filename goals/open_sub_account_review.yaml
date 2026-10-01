@@ -1,0 +1,17 @@
+# Multi-field form ending on a confirmation screen. The final "Confirm and Open" is
+# irreversible: discovery stops at the review screen by design.
+capability: open_sub_account_review
+title: Prepare a new sub-account and reach the review screen
+goal: >-
+  For member {{member_id}}, start opening a new sub-account of share type {{share_type}} with
+  nickname {{nickname}} and opening deposit {{opening_deposit}}, and stop on the review screen
+  before anything is committed.
+inputs:
+  - {name: member_id, type: string, description: Member number (5-8 digits), pattern: '\d{5,8}',
+     sensitivity: pii, discovery_value: "10002"}
+  - {name: share_type, type: enum, description: Share product, enum: [Christmas Club, Vacation Club, Savings Club],
+     sensitivity: public, discovery_value: "Vacation Club"}
+  - {name: nickname, type: string, description: Nickname for the new share, sensitivity: internal,
+     discovery_value: "Beach Fund"}
+  - {name: opening_deposit, type: decimal, description: Opening deposit in USD (min 5.00), sensitivity: financial,
+     discovery_value: "25.00"}

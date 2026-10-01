@@ -1,0 +1,28 @@
+{
+  "run_id": "run_8a6df9a9737b",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "rejected",
+  "outputs": {},
+  "outcome": null,
+  "failure": {
+    "code": "NOT_APPROVED",
+    "message": "legacy-corebank.member_savings_balance v1 is 'draft'; approve it or pass --allow-draft for supervised runs",
+    "step_id": null,
+    "step_intent": null,
+    "expected": null,
+    "observed": null,
+    "retryable": false,
+    "evidence": []
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:23.299Z",
+  "finished_at": "2026-09-30T21:53:23.301Z",
+  "duration_ms": 2,
+  "evidence_dir": "_offline_selftest/runs/20260930T215323_replay_member_savings_balance_a9737b"
+}

@@ -1,0 +1,1172 @@
+
+[1m== 1. Discovery (LLM: scripted:tests/fixtures/plan_member_savings_balance.json) on tenant buffalo-teachers[0m
+  [001] discovery_start               {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] model_decision                {"tool": "click"}
+  [008] agent_action                  {"tool": "click"}
+  [009] model_decision                {"tool": "fill"}
+  [010] agent_action                  {"tool": "fill"}
+  [011] model_decision                {"tool": "click"}
+  [012] agent_action                  {"tool": "click"}
+  [013] model_decision                {"tool": "click"}
+  [014] agent_action                  {"tool": "click"}
+  [015] model_decision                {"tool": "extract"}
+  [016] agent_extract                 {}
+  [017] model_decision                {"tool": "done"}
+  [018] agent_done                    {}
+  [019] artifact_saved                {}
+  [020] discovery_end                 {"status": "success", "message": "Primary savings balance located on the account summary"}
+{
+  "run_id": "run_c0a503d1f8a4",
+  "status": "success",
+  "message": "Primary savings balance located on the account summary",
+  "steps": 6,
+  "usage": {
+    "input_tokens": 0,
+    "output_tokens": 0
+  },
+  "evidence_dir": "_offline_selftest/runs/20260930T215316_discovery_member_savings_balance_d1f8a4",
+  "capability": {
+    "id": "legacy-corebank.member_savings_balance",
+    "version": 1,
+    "registry_status": "draft"
+  }
+}
+
+[1m== 2. Review + approve v1 (draft -> approved)[0m
+$ cuauto capabilities show legacy-corebank.member_savings_balance --version 1
+# registry: status=draft approved_by=None sha256=af3855b180d521af9e3b8a981eb6c70fd2e609a7a2a0d2ecc1ebbc2049eec666
+schema: cuauto.capability/v1
+id: legacy-corebank.member_savings_balance
+name: member_savings_balance
+version: 1
+title: Look up a member's primary savings balance
+description: Look up member {{member_id}} and read the current balance of their Primary Savings share. Return it
+  as output `savings_balance` (type money). Finish on the member account summary screen.
+app:
+  app_id: legacy-corebank
+  surface: legacy_web
+  compatible_versions: '>=4.2,<5.0'
+  recorded_on_tenant: buffalo-teachers
+  recorded_on_version: 4.2.3
+requires_auth: true
+entry:
+  path: /
+side_effects: reversible
+inputs:
+- name: member_id
+  type: string
+  description: Member number (5-8 digits)
+  pattern: \d{5,8}
+  required: true
+  sensitivity: pii
+outputs:
+- name: savings_balance
+  type: money
+  description: Current balance of the Primary Savings share
+  source:
+    kind: text
+    role: text
+    context:
+      frame: main
+      row_label: S00
+      column_header: Current Balance
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/table[3]/tbody[1]/tr[2]/td[3]
+      note: recorded DOM path; drift if used
+  sensitivity: financial
+  required: true
+outcomes:
+- code: RECORD_NOT_FOUND
+  detector: record_not_found
+  description: No member exists for the supplied member number.
+- code: ACCESS_DENIED
+  detector: access_denied
+  description: The operator account is not permitted to view this record.
+- code: INPUT_REJECTED_BY_APP
+  detector: input_rejected
+  description: The application rejected the supplied input.
+steps:
+- id: s1
+  intent: Open the member inquiry function
+  action: click
+  target:
+    kind: control
+    role: link
+    name: Member Inquiry
+    context:
+      frame: nav
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/table[1]/tbody[1]/tr[1]/td[2]/a[1]
+      note: recorded DOM path; drift if used
+  risk: safe
+  expect:
+    frame: main
+    url_pattern: /cgi/mbrinq*
+    text_present:
+    - MEMBER INQUIRY
+    text_absent: []
+    timeout_ms: 8000
+  origin: model
+- id: s2
+  intent: Enter the member number
+  action: fill
+  target:
+    kind: control
+    role: textbox
+    name: Member Number
+    context:
+      frame: main
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/form[1]/table[1]/tbody[1]/tr[1]/td[2]/input[1]
+      note: recorded DOM path; drift if used
+  value: '{{member_id}}'
+  risk: reversible
+  origin: model
+- id: s3
+  intent: Run the member search
+  action: click
+  target:
+    kind: control
+    role: button
+    name: Search
+    context:
+      frame: main
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/form[1]/input[1]
+      note: recorded DOM path; drift if used
+  risk: safe
+  expect:
+    frame: main
+    url_pattern: /cgi/mbrsrch*
+    text_present:
+    - MEMBER SEARCH RESULTS
+    text_absent: []
+    timeout_ms: 8000
+  origin: model
+- id: s4
+  intent: Open the member's account summary
+  action: click
+  target:
+    kind: control
+    role: link
+    name: View
+    context:
+      frame: main
+      row_label: '{{member_id}}'
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/table[2]/tbody[1]/tr[2]/td[4]/a[1]
+      note: recorded DOM path; drift if used
+  risk: safe
+  expect:
+    frame: main
+    url_pattern: /cgi/mbrdtl*
+    text_present:
+    - MEMBER ACCOUNT SUMMARY
+    text_absent: []
+    timeout_ms: 8000
+  origin: model
+success:
+  all_of:
+  - frame: main
+    text_present:
+    - MEMBER ACCOUNT SUMMARY
+    text_absent: []
+    timeout_ms: 8000
+  require_outputs: true
+provenance:
+  source_run_id: run_c0a503d1f8a4
+  recorded_at: '2026-09-30T21:53:22.501Z'
+  model: scripted-offline
+  discovery_goal: Look up member {{member_id}} and read the current balance of their Primary Savings share. Return
+    it as output `savings_balance` (type money). Finish on the member account summary screen.
+  human_steps: 0
+
+(exit 0)
+$ cuauto replay legacy-corebank.member_savings_balance --version 1 --tenant buffalo-teachers --arg member_id=10001
+  [001] replay_start                  {}
+  [002] replay_end                    {"status": "rejected", "code": "NOT_APPROVED"}
+{
+  "run_id": "run_8a6df9a9737b",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "rejected",
+  "outputs": {},
+  "failure": {
+    "code": "NOT_APPROVED",
+    "message": "legacy-corebank.member_savings_balance v1 is 'draft'; approve it or pass --allow-draft for supervised runs",
+    "retryable": false,
+    "evidence": []
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:23.299Z",
+  "finished_at": "2026-09-30T21:53:23.301Z",
+  "duration_ms": 2,
+  "evidence_dir": "_offline_selftest/runs/20260930T215323_replay_member_savings_balance_a9737b"
+}
+(exit 3)
+$ cuauto capabilities approve legacy-corebank.member_savings_balance --version 1 --by rakshatha --force
+{
+  "capability": "legacy-corebank.member_savings_balance",
+  "version": 1,
+  "status": "approved",
+  "by": "rakshatha"
+}
+(exit 0)
+
+[1m== 3. Replays: success / business outcomes / contract rejection[0m
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=10001
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] checkpoint_ok          s3     {}
+  [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [013] checkpoint_ok          s4     {}
+  [014] success_verified              {}
+  [015] replay_end                    {"status": "success", "code": null}
+{
+  "run_id": "run_d7486d173229",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "1234.56"
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:23.911Z",
+  "finished_at": "2026-09-30T21:53:25.547Z",
+  "duration_ms": 1636,
+  "evidence_dir": "_offline_selftest/runs/20260930T215323_replay_member_savings_balance_173229"
+}
+(exit 0)
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=7777777
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] state_detected         s3     {"detector": "record_not_found", "message": "No member exists for the supplied member number."}
+  [012] business_outcome       s3     {"code": "RECORD_NOT_FOUND"}
+  [013] replay_end                    {"status": "business_outcome", "code": "RECORD_NOT_FOUND"}
+{
+  "run_id": "run_894de73a03b9",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "business_outcome",
+  "outputs": {},
+  "outcome": {
+    "code": "RECORD_NOT_FOUND",
+    "message": "No member exists for the supplied member number.",
+    "detector": "record_not_found",
+    "step_id": "s3"
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:25.869Z",
+  "finished_at": "2026-09-30T21:53:27.612Z",
+  "duration_ms": 1743,
+  "evidence_dir": "_offline_selftest/runs/20260930T215325_replay_member_savings_balance_3a03b9"
+}
+(exit 2)
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=55555
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] checkpoint_ok          s3     {}
+  [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [013] state_detected         s4     {"detector": "access_denied", "message": "The operator account is not permitted to view this record."}
+  [014] business_outcome       s4     {"code": "ACCESS_DENIED"}
+  [015] replay_end                    {"status": "business_outcome", "code": "ACCESS_DENIED"}
+{
+  "run_id": "run_aac6148f198c",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "business_outcome",
+  "outputs": {},
+  "outcome": {
+    "code": "ACCESS_DENIED",
+    "message": "The operator account is not permitted to view this record.",
+    "detector": "access_denied",
+    "step_id": "s4"
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:27.930Z",
+  "finished_at": "2026-09-30T21:53:29.684Z",
+  "duration_ms": 1754,
+  "evidence_dir": "_offline_selftest/runs/20260930T215327_replay_member_savings_balance_8f198c"
+}
+(exit 2)
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=12ab
+  [001] replay_start                  {}
+  [002] replay_end                    {"status": "rejected", "code": "INVALID_ARGUMENTS"}
+{
+  "run_id": "run_eef1b05d3fba",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "rejected",
+  "outputs": {},
+  "failure": {
+    "code": "INVALID_ARGUMENTS",
+    "message": "input 'member_id' does not match pattern \\d{5,8}",
+    "retryable": false,
+    "evidence": []
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:29.980Z",
+  "finished_at": "2026-09-30T21:53:29.982Z",
+  "duration_ms": 1,
+  "evidence_dir": "_offline_selftest/runs/20260930T215329_replay_member_savings_balance_5d3fba"
+}
+(exit 3)
+
+[1m== 4. Recoverable runtime conditions[0m
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=10002
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] checkpoint_ok          s3     {}
+  [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [013] state_detected         s4     {"detector": "system_notice", "message": "Known informational interstitial."}
+  [014] recovery               s4     {"detector": "system_notice", "action": "click"}
+  [015] checkpoint_ok          s4     {}
+  [016] success_verified              {}
+  [017] replay_end                    {"status": "success", "code": null}
+{
+  "run_id": "run_860ccf9eecdb",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "25.00"
+  },
+  "recoveries": [
+    {
+      "step_id": "s4",
+      "condition": "system_notice",
+      "action": "click",
+      "attempt": 1
+    }
+  ],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:30.593Z",
+  "finished_at": "2026-09-30T21:53:33.139Z",
+  "duration_ms": 2546,
+  "evidence_dir": "_offline_selftest/runs/20260930T215330_replay_member_savings_balance_9eecdb"
+}
+(exit 0)
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=10001
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] state_detected         s3     {"detector": "session_expired", "message": "Session expired; re-authenticate and restart from the entry point."}
+  [012] recovery               s3     {"detector": "session_expired", "action": "reauthenticate_and_restart"}
+  [013] flow_restart           s3     {"reason": "session_expired"}
+  [014] auth_start                    {}
+  [015] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [016] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [017] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [018] auth_ok                       {}
+  [019] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [020] checkpoint_ok          s1     {}
+  [021] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [022] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [023] checkpoint_ok          s3     {}
+  [024] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [025] checkpoint_ok          s4     {}
+  [026] success_verified              {}
+  [027] replay_end                    {"status": "success", "code": null}
+{
+  "run_id": "run_e9aa8e497ad0",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "1234.56"
+  },
+  "recoveries": [
+    {
+      "step_id": "s3",
+      "condition": "session_expired",
+      "action": "reauthenticate_and_restart",
+      "attempt": 1
+    }
+  ],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:33.742Z",
+  "finished_at": "2026-09-30T21:53:37.027Z",
+  "duration_ms": 3284,
+  "evidence_dir": "_offline_selftest/runs/20260930T215333_replay_member_savings_balance_497ad0"
+}
+(exit 0)
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=10001
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] checkpoint_ok          s3     {}
+  [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [013] checkpoint_ok          s4     {}
+  [014] success_verified              {}
+  [015] replay_end                    {"status": "success", "code": null}
+{
+  "run_id": "run_7271cd6aa899",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "1234.56"
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:37.983Z",
+  "finished_at": "2026-09-30T21:53:42.629Z",
+  "duration_ms": 4646,
+  "evidence_dir": "_offline_selftest/runs/20260930T215337_replay_member_savings_balance_6aa899"
+}
+(exit 0)
+
+[1m== 5. Hard failure (application ABEND) with screenshot + snapshot[0m
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=10001
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] checkpoint_ok          s3     {}
+  [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [013] state_detected         s4     {"detector": "app_error", "message": "The application reported an internal error."}
+  [014] failure                s4     {"code": "APP_ERROR", "message": "The application reported an internal error."}
+  [015] replay_end                    {"status": "failed", "code": "APP_ERROR"}
+{
+  "run_id": "run_e00dc585bdef",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "failed",
+  "outputs": {},
+  "failure": {
+    "code": "APP_ERROR",
+    "message": "The application reported an internal error.",
+    "step_id": "s4",
+    "step_intent": "Open the member's account summary",
+    "observed": {
+      "frames": {
+        "top": "/",
+        "nav": "/nav",
+        "main": "/cgi/mbrdtl"
+      },
+      "headline_text": [
+        "Buffalo Teachers FCU",
+        "SYSTEM ERROR",
+        "AN UNEXPECTED ERROR HAS OCCURRED. ABEND S0C7 IN MODULE CBMBR210. CONTACT THE HELP DESK."
+      ],
+      "controls": [
+        "link 'Member Inquiry'",
+        "link 'Sign Off'"
+      ]
+    },
+    "retryable": false,
+    "evidence": [
+      "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef/screens/014_failure.png",
+      "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef/snapshots/013_failure.json"
+    ]
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:43.520Z",
+  "finished_at": "2026-09-30T21:53:45.361Z",
+  "duration_ms": 1840,
+  "evidence_dir": "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef"
+}
+(exit 1)
+
+[1m== 6. Unknown state -> human takes over the SAME live session -> hands back[0m
+$ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=10001 --on-stuck escalate --escalation-timeout 120
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] checkpoint_ok          s3     {}
+  [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [013] recovery               s4     {"detector": "transient", "action": "retry_step", "reason": "checkpoint_not_reached"}
+  [014] intervention_opened    s4     {"reason": "target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry re
+
+  >>> HUMAN INTERVENTION REQUIRED [stuck] int_16801acf4f33
+      reason: target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.
+      claim:  cuauto operator claim int_16801acf4f33 --as <you>
+      live session (CDP): http://127.0.0.1:9222
+      console: http://127.0.0.1:8500
+
+[operator alice] saw int_16801acf4f33 (stuck): target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.
+[operator alice] claimed live session http://127.0.0.1:9222
+  [015] human_action                  {"action": "fill"}
+  [016] human_action                  {"action": "click"}
+[operator alice] performed ["fill 'Override Code'", "click 'Authorize'"]
+[operator alice] handed back with 'resume'
+  [017] intervention_closed    s4     {"resolution": "resume"}
+  [018] human_committed               {}
+  [019] resync                        {}
+  [020] success_verified              {}
+  [021] replay_end                    {"status": "success", "code": null}
+{
+  "run_id": "run_3ef743f105a9",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "1234.56"
+  },
+  "recoveries": [
+    {
+      "step_id": "s4",
+      "condition": "transient:checkpoint_not_reached",
+      "action": "retry_step",
+      "attempt": 1
+    }
+  ],
+  "interventions": [
+    {
+      "id": "int_16801acf4f33",
+      "kind": "stuck",
+      "reason": "target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.",
+      "resolution": "resume",
+      "operator": "alice",
+      "human_actions": 2
+    }
+  ],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": true,
+  "started_at": "2026-09-30T21:53:46.545Z",
+  "finished_at": "2026-09-30T21:54:08.733Z",
+  "duration_ms": 22187,
+  "evidence_dir": "_offline_selftest/runs/20260930T215346_replay_member_savings_balance_f105a9"
+}
+(exit 0)
+$ cuauto operator list --all
+int_16801acf4f33  stuck    resolved run=run_3ef743f105a9 holder=automation epoch=4
+    reason: target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.
+(exit 0)
+
+[1m== 7. Same artifact, second tenant (vendor variant b, v4.3.0) via label aliases[0m
+$ cuauto replay legacy-corebank.member_savings_balance --tenant lakeshore-cu --arg member_id=10001
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic+alias"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic+alias"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic+alias"}
+  [011] checkpoint_ok          s3     {}
+  [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [013] checkpoint_ok          s4     {}
+  [014] success_verified              {}
+  [015] replay_end                    {"status": "success", "code": null}
+{
+  "run_id": "run_18d3135ed431",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "lakeshore-cu",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "1234.56"
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic+alias",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic+alias",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic+alias",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:54:09.648Z",
+  "finished_at": "2026-09-30T21:54:11.560Z",
+  "duration_ms": 1911,
+  "evidence_dir": "_offline_selftest/runs/20260930T215409_replay_member_savings_balance_5ed431"
+}
+(exit 0)
+
+[1m== 8. Agent-facing catalog + invoke by tool name[0m
+$ cuauto catalog
+[
+  {
+    "name": "legacy-corebank__member_savings_balance",
+    "description": "Look up a member's primary savings balance. Look up member {{member_id}} and read the current balance of their Primary Savings share. Return it as output `savings_balance` (type money). Finish on the member account summary screen. Returns outputs ['savings_balance'] or a business outcome in ['RECORD_NOT_FOUND', 'ACCESS_DENIED', 'INPUT_REJECTED_BY_APP']. Side effects: reversible.",
+    "input_schema": {
+      "type": "object",
+      "properties": {
+        "member_id": {
+          "type": "string",
+          "description": "Member number (5-8 digits)",
+          "pattern": "\\d{5,8}"
+        }
+      },
+      "required": [
+        "member_id"
+      ]
+    },
+    "x-capability": {
+      "id": "legacy-corebank.member_savings_balance",
+      "version": 1,
+      "status": "approved"
+    }
+  }
+]
+(exit 0)
+$ cuauto invoke legacy-corebank__member_savings_balance --tenant buffalo-teachers --args {"member_id": "10002"}
+  [001] replay_start                  {}
+  [002] auth_start                    {}
+  [003] step_action            auth1  {"intent": "Enter operator user id", "action": "fill", "strategy": "semantic"}
+  [004] step_action            auth2  {"intent": "Enter operator password", "action": "fill", "strategy": "semantic"}
+  [005] step_action            auth3  {"intent": "Sign on", "action": "click", "strategy": "semantic"}
+  [006] auth_ok                       {}
+  [007] step_action            s1     {"intent": "Open the member inquiry function", "action": "click", "strategy": "semantic"}
+  [008] checkpoint_ok          s1     {}
+  [009] step_action            s2     {"intent": "Enter the member number", "action": "fill", "strategy": "semantic"}
+  [010] step_action            s3     {"intent": "Run the member search", "action": "click", "strategy": "semantic"}
+  [011] checkpoint_ok          s3     {}
+  [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
+  [013] checkpoint_ok          s4     {}
+  [014] success_verified              {}
+  [015] replay_end                    {"status": "success", "code": null}
+{
+  "run_id": "run_ff561c2d8268",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "25.00"
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:54:12.143Z",
+  "finished_at": "2026-09-30T21:54:14.312Z",
+  "duration_ms": 2169,
+  "evidence_dir": "_offline_selftest/runs/20260930T215412_replay_member_savings_balance_2d8268"
+}
+(exit 0)
+
+[1m== Done. See /home/claude/cu-automation/evidence/_offline_selftest/SUMMARY.md[0m

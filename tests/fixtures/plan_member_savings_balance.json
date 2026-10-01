@@ -1,0 +1,8 @@
+[
+  {"tool": "click", "match": {"role": "link", "name": "Member Inquiry"}, "input": {"why": "Open the member inquiry function"}},
+  {"tool": "fill", "match": {"role": "textbox", "name": "Member Number"}, "input": {"text": "{{member_id}}", "why": "Enter the member number"}},
+  {"tool": "click", "match": {"role": "button", "name": "Search"}, "input": {"why": "Run the member search"}},
+  {"tool": "click", "match": {"role": "link", "name": "View", "row_label": "10001"}, "input": {"why": "Open the member's account summary"}},
+  {"tool": "extract", "match": {"kind": "text", "row_label": "S00", "column_header": "Current Balance"}, "input": {"output_name": "savings_balance", "type": "money", "description": "Current balance of the Primary Savings share"}},
+  {"tool": "done", "input": {"success_text": "Member Account Summary", "summary": "Primary savings balance located on the account summary"}}
+]

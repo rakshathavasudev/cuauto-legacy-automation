@@ -1,0 +1,13 @@
+[
+  {"tool": "click", "match": {"role": "link", "name": "Member Inquiry"}, "input": {"why": "Open the member inquiry function"}},
+  {"tool": "fill", "match": {"role": "textbox", "name": "Member Number"}, "input": {"text": "{{member_id}}", "why": "Enter the member number"}},
+  {"tool": "click", "match": {"role": "button", "name": "Search"}, "input": {"why": "Run the member search"}},
+  {"tool": "click", "match": {"role": "link", "name": "View", "row_label": "10002"}, "input": {"why": "Open the member's account summary"}},
+  {"tool": "click", "match": {"role": "button", "name": "Open Sub-Account"}, "input": {"why": "Start a new sub-account"}},
+  {"tool": "select", "match": {"role": "combobox", "name": "Share Type"}, "input": {"option": "{{share_type}}", "why": "Choose the share product"}},
+  {"tool": "fill", "match": {"role": "textbox", "name": "Nickname"}, "input": {"text": "{{nickname}}", "why": "Name the new share"}},
+  {"tool": "fill", "match": {"role": "textbox", "name": "Opening Deposit"}, "input": {"text": "{{opening_deposit}}", "why": "Enter the opening deposit"}},
+  {"tool": "click", "match": {"role": "button", "name": "Continue"}, "input": {"why": "Proceed to the review screen"}},
+  {"tool": "click", "match": {"role": "button", "name": "Confirm and Open"}, "input": {"why": "Commit (should be blocked by policy)"}},
+  {"tool": "done", "input": {"success_text": "Review New Sub-Account", "summary": "Reached the review screen without committing"}}
+]

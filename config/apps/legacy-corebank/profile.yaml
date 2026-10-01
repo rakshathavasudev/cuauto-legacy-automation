@@ -1,0 +1,66 @@
+# Vendor-product profile: shared by every tenant running "CoreBank Teller" 4.x.
+# Capabilities are recorded against this profile, not against a tenant.
+app_id: legacy-corebank
+product: CoreBank Teller (legacy web, frameset UI)
+surface: legacy_web
+version_range: ">=4.2,<5.0"
+home_path: /
+
+auth:
+  entry_path: /login
+  steps:
+    - {id: auth1, intent: Enter operator user id, action: fill, risk: reversible, origin: profile,
+       target: {role: textbox, name: User ID}, value: "{{secrets.username}}"}
+    - {id: auth2, intent: Enter operator password, action: fill, risk: reversible, origin: profile,
+       target: {role: textbox, name: Password}, value: "{{secrets.password}}"}
+    - {id: auth3, intent: Sign on, action: click, risk: safe, origin: profile,
+       target: {role: button, name: Sign On}}
+  success: {frame: nav, text_present: [], url_pattern: "/nav*", timeout_ms: 8000}
+
+# Runtime states and how to treat them. Order matters: first match wins.
+detectors:
+  - id: login_failed
+    classification: hard
+    match: {text_regex: '(?i)invalid user id or password'}
+    message: Operator credentials were rejected.
+  - id: session_expired
+    classification: recoverable
+    match: {text_regex: '(?i)session has expired|sign on required'}
+    message: Session expired; re-authenticate and restart from the entry point.
+    recovery: {kind: reauthenticate_and_restart, max_attempts: 1}
+  - id: system_notice
+    classification: recoverable
+    match: {text_regex: '(?i)^system notice$'}
+    message: Known informational interstitial.
+    recovery: {kind: click, max_attempts: 3, target: {role: button, name: Continue}}
+  - id: app_error
+    classification: hard
+    match: {text_regex: '(?i)unexpected error has occurred|abend'}
+    message: The application reported an internal error.
+  - id: record_not_found
+    classification: business
+    outcome_code: RECORD_NOT_FOUND
+    match: {text_regex: '(?i)no member found'}
+    message: No member exists for the supplied member number.
+  - id: access_denied
+    classification: business
+    outcome_code: ACCESS_DENIED
+    match: {text_regex: '(?i)not authorized to view this record'}
+    message: The operator account is not permitted to view this record.
+  - id: input_rejected
+    classification: business
+    outcome_code: INPUT_REJECTED_BY_APP
+    match: {text_regex: '(?i)invalid (member number|entry)'}
+    message: The application rejected the supplied input.
+
+# Labels whose values are PII: redacted in logs, blurred in screenshots, hidden from the model.
+sensitive_labels: [Member Name, Name, SSN, Address, Phone, Date of Birth, Override Code]
+
+# Label-level risk classification that patterns alone get wrong.
+risk_overrides:
+  Open Sub-Account: safe       # opens a form, commits nothing
+  Continue: safe
+  Confirm and Open: irreversible
+  Authorize: irreversible      # supervisor override: a human decision by definition
+
+label_aliases: {}

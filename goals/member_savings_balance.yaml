@@ -1,0 +1,14 @@
+# Discovery goal. Only `discovery_value`s are concrete, and they never leave this process:
+# the model sees {{member_id}}, logs see [input:member_id], the artifact stores the template.
+capability: member_savings_balance
+title: Look up a member's primary savings balance
+goal: >-
+  Look up member {{member_id}} and read the current balance of their Primary Savings share.
+  Return it as output `savings_balance` (type money). Finish on the member account summary screen.
+inputs:
+  - name: member_id
+    type: string
+    description: Member number (5-8 digits)
+    pattern: '\d{5,8}'
+    sensitivity: pii
+    discovery_value: "10001"

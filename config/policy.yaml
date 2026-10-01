@@ -1,0 +1,27 @@
+# Global guardrail policy. Tenants may add origins (their base_url) and overrides.
+# Default-deny: anything not listed here is blocked, including in-browser navigations.
+allowed_origins: []            # tenant base_urls are appended at load time
+allowed_paths:
+  - /
+  - /login
+  - /nav
+  - /cgi/**
+  - /favicon.ico
+denied_paths:
+  - /_admin/**                 # vendor admin consoles are never agent-reachable
+  - /logout                    # ending the session mid-run is never useful
+allowed_actions: [click, fill, select, press, extract]
+# Button labels that commit something. Matched as regex, case-insensitive.
+irreversible_patterns:
+  - '\bconfirm\b'
+  - '\bsubmit\b'
+  - '\bpost\b'
+  - '\btransfer\b'
+  - '\bdelete\b'
+  - '\bremove\b'
+  - '\bclose account\b'
+  - '\bapprove\b'
+  - '\bauthori[sz]e\b'
+  - '\bpay\b'
+  - '\bwithdraw'
+  - '\bfinali[sz]e\b'

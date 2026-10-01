@@ -1,0 +1,13 @@
+# Same vendor product, configured and branded differently (mock variant "b").
+# Capabilities recorded on buffalo-teachers replay here via label aliases, no re-recording.
+tenant_id: lakeshore-cu
+display_name: Lakeshore Community CU (fictional)
+app_id: legacy-corebank
+product_version: "4.3.0"
+base_url: http://127.0.0.1:8402
+credentials: {username_env: LSCU_USERNAME, password_env: LSCU_PASSWORD}
+label_aliases:
+  Member Inquiry: [Member Lookup]
+  Member Number: ["Member #"]
+  Search: [Find]
+  Open Sub-Account: [New Share]

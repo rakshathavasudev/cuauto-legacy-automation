@@ -1,0 +1,82 @@
+{
+  "run_id": "run_e00dc585bdef",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "failed",
+  "outputs": {},
+  "outcome": null,
+  "failure": {
+    "code": "APP_ERROR",
+    "message": "The application reported an internal error.",
+    "step_id": "s4",
+    "step_intent": "Open the member's account summary",
+    "expected": null,
+    "observed": {
+      "frames": {
+        "top": "/",
+        "nav": "/nav",
+        "main": "/cgi/mbrdtl"
+      },
+      "headline_text": [
+        "Buffalo Teachers FCU",
+        "SYSTEM ERROR",
+        "AN UNEXPECTED ERROR HAS OCCURRED. ABEND S0C7 IN MODULE CBMBR210. CONTACT THE HELP DESK."
+      ],
+      "controls": [
+        "link 'Member Inquiry'",
+        "link 'Sign Off'"
+      ]
+    },
+    "retryable": false,
+    "evidence": [
+      "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef/screens/014_failure.png",
+      "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef/snapshots/013_failure.json"
+    ]
+  },
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-09-30T21:53:43.520Z",
+  "finished_at": "2026-09-30T21:53:45.361Z",
+  "duration_ms": 1840,
+  "evidence_dir": "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef"
+}

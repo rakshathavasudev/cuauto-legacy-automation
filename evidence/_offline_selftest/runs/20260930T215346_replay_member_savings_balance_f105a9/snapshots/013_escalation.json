@@ -1,0 +1,86 @@
+{
+ "frames": [
+  {
+   "name": "top",
+   "url": "http://127.0.0.1:8401/",
+   "title": "CoreBank 4.2"
+  },
+  {
+   "name": "nav",
+   "url": "http://127.0.0.1:8401/nav",
+   "title": "CoreBank 4.2"
+  },
+  {
+   "name": "main",
+   "url": "http://127.0.0.1:8401/cgi/mbrdtl?m=[input:member_id]&tok=adf7f4",
+   "title": "CoreBank 4.2"
+  }
+ ],
+ "items": [
+  {
+   "frame": "nav",
+   "kind": "text",
+   "role": "text",
+   "name": "Buffalo Teachers FCU",
+   "ctx": {}
+  },
+  {
+   "frame": "nav",
+   "kind": "control",
+   "role": "link",
+   "name": "Member Inquiry",
+   "ctx": {
+    "row_label": "Buffalo Teachers FCU",
+    "field_label": "Buffalo Teachers FCU"
+   }
+  },
+  {
+   "frame": "nav",
+   "kind": "control",
+   "role": "link",
+   "name": "Sign Off",
+   "ctx": {
+    "row_label": "Buffalo Teachers FCU",
+    "field_label": "Member Inquiry"
+   }
+  },
+  {
+   "frame": "main",
+   "kind": "text",
+   "role": "text",
+   "name": "SUPERVISOR OVERRIDE REQUIRED",
+   "ctx": {}
+  },
+  {
+   "frame": "main",
+   "kind": "text",
+   "role": "text",
+   "name": "This inquiry requires a supervisor override.",
+   "ctx": {}
+  },
+  {
+   "frame": "main",
+   "kind": "text",
+   "role": "text",
+   "name": "Override Code:",
+   "ctx": {}
+  },
+  {
+   "frame": "main",
+   "kind": "control",
+   "role": "textbox",
+   "name": "Override Code",
+   "ctx": {
+    "row_label": "Override Code",
+    "field_label": "Override Code"
+   }
+  },
+  {
+   "frame": "main",
+   "kind": "control",
+   "role": "button",
+   "name": "Authorize",
+   "ctx": {}
+  }
+ ]
+}
