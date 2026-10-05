@@ -21,7 +21,7 @@
   [019] artifact_saved                {}
   [020] discovery_end                 {"status": "success", "message": "Primary savings balance located on the account summary"}
 {
-  "run_id": "run_c0a503d1f8a4",
+  "run_id": "run_e6ae8b2ddb69",
   "status": "success",
   "message": "Primary savings balance located on the account summary",
   "steps": 6,
@@ -29,7 +29,7 @@
     "input_tokens": 0,
     "output_tokens": 0
   },
-  "evidence_dir": "_offline_selftest/runs/20260930T215316_discovery_member_savings_balance_d1f8a4",
+  "evidence_dir": "_offline_selftest/runs/20261003T230436_discovery_member_savings_balance_2ddb69",
   "capability": {
     "id": "legacy-corebank.member_savings_balance",
     "version": 1,
@@ -39,7 +39,7 @@
 
 [1m== 2. Review + approve v1 (draft -> approved)[0m
 $ cuauto capabilities show legacy-corebank.member_savings_balance --version 1
-# registry: status=draft approved_by=None sha256=af3855b180d521af9e3b8a981eb6c70fd2e609a7a2a0d2ecc1ebbc2049eec666
+# registry: status=draft approved_by=None sha256=ffa9b843af6c6e970d90eabbc93e45de7f505567bb69756e73bfbbcbc6cd5986
 schema: cuauto.capability/v1
 id: legacy-corebank.member_savings_balance
 name: member_savings_balance
@@ -184,8 +184,8 @@ success:
     timeout_ms: 8000
   require_outputs: true
 provenance:
-  source_run_id: run_c0a503d1f8a4
-  recorded_at: '2026-09-30T21:53:22.501Z'
+  source_run_id: run_e6ae8b2ddb69
+  recorded_at: '2026-10-03T23:04:44.701Z'
   model: scripted-offline
   discovery_goal: Look up member {{member_id}} and read the current balance of their Primary Savings share. Return
     it as output `savings_balance` (type money). Finish on the member account summary screen.
@@ -196,7 +196,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --version 1 --tenant buff
   [001] replay_start                  {}
   [002] replay_end                    {"status": "rejected", "code": "NOT_APPROVED"}
 {
-  "run_id": "run_8a6df9a9737b",
+  "run_id": "run_f6740e88e5d6",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -213,10 +213,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --version 1 --tenant buff
   "interventions": [],
   "locators": [],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:23.299Z",
-  "finished_at": "2026-09-30T21:53:23.301Z",
-  "duration_ms": 2,
-  "evidence_dir": "_offline_selftest/runs/20260930T215323_replay_member_savings_balance_a9737b"
+  "started_at": "2026-10-03T23:04:47.574Z",
+  "finished_at": "2026-10-03T23:04:47.698Z",
+  "duration_ms": 123,
+  "evidence_dir": "_offline_selftest/runs/20261003T230447_replay_member_savings_balance_88e5d6"
 }
 (exit 3)
 $ cuauto capabilities approve legacy-corebank.member_savings_balance --version 1 --by rakshatha --force
@@ -246,7 +246,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [014] success_verified              {}
   [015] replay_end                    {"status": "success", "code": null}
 {
-  "run_id": "run_d7486d173229",
+  "run_id": "run_015ba2d01d59",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -300,10 +300,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:23.911Z",
-  "finished_at": "2026-09-30T21:53:25.547Z",
-  "duration_ms": 1636,
-  "evidence_dir": "_offline_selftest/runs/20260930T215323_replay_member_savings_balance_173229"
+  "started_at": "2026-10-03T23:04:49.695Z",
+  "finished_at": "2026-10-03T23:04:52.820Z",
+  "duration_ms": 3125,
+  "evidence_dir": "_offline_selftest/runs/20261003T230449_replay_member_savings_balance_d01d59"
 }
 (exit 0)
 $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=7777777
@@ -321,7 +321,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [012] business_outcome       s3     {"code": "RECORD_NOT_FOUND"}
   [013] replay_end                    {"status": "business_outcome", "code": "RECORD_NOT_FOUND"}
 {
-  "run_id": "run_894de73a03b9",
+  "run_id": "run_8c272843b64c",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -369,10 +369,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:25.869Z",
-  "finished_at": "2026-09-30T21:53:27.612Z",
-  "duration_ms": 1743,
-  "evidence_dir": "_offline_selftest/runs/20260930T215325_replay_member_savings_balance_3a03b9"
+  "started_at": "2026-10-03T23:04:54.402Z",
+  "finished_at": "2026-10-03T23:04:57.146Z",
+  "duration_ms": 2743,
+  "evidence_dir": "_offline_selftest/runs/20261003T230454_replay_member_savings_balance_43b64c"
 }
 (exit 2)
 $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=55555
@@ -392,7 +392,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [014] business_outcome       s4     {"code": "ACCESS_DENIED"}
   [015] replay_end                    {"status": "business_outcome", "code": "ACCESS_DENIED"}
 {
-  "run_id": "run_aac6148f198c",
+  "run_id": "run_21991467e8d9",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -445,17 +445,17 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:27.930Z",
-  "finished_at": "2026-09-30T21:53:29.684Z",
-  "duration_ms": 1754,
-  "evidence_dir": "_offline_selftest/runs/20260930T215327_replay_member_savings_balance_8f198c"
+  "started_at": "2026-10-03T23:04:58.486Z",
+  "finished_at": "2026-10-03T23:05:02.021Z",
+  "duration_ms": 3534,
+  "evidence_dir": "_offline_selftest/runs/20261003T230458_replay_member_savings_balance_67e8d9"
 }
 (exit 2)
 $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=12ab
   [001] replay_start                  {}
   [002] replay_end                    {"status": "rejected", "code": "INVALID_ARGUMENTS"}
 {
-  "run_id": "run_eef1b05d3fba",
+  "run_id": "run_9bc4c253ae4a",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -472,10 +472,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   "interventions": [],
   "locators": [],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:29.980Z",
-  "finished_at": "2026-09-30T21:53:29.982Z",
-  "duration_ms": 1,
-  "evidence_dir": "_offline_selftest/runs/20260930T215329_replay_member_savings_balance_5d3fba"
+  "started_at": "2026-10-03T23:05:03.490Z",
+  "finished_at": "2026-10-03T23:05:03.625Z",
+  "duration_ms": 135,
+  "evidence_dir": "_offline_selftest/runs/20261003T230503_replay_member_savings_balance_53ae4a"
 }
 (exit 3)
 
@@ -499,7 +499,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [016] success_verified              {}
   [017] replay_end                    {"status": "success", "code": null}
 {
-  "run_id": "run_860ccf9eecdb",
+  "run_id": "run_e45fb6001da8",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -560,10 +560,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:30.593Z",
-  "finished_at": "2026-09-30T21:53:33.139Z",
-  "duration_ms": 2546,
-  "evidence_dir": "_offline_selftest/runs/20260930T215330_replay_member_savings_balance_9eecdb"
+  "started_at": "2026-10-03T23:05:05.781Z",
+  "finished_at": "2026-10-03T23:05:09.671Z",
+  "duration_ms": 3890,
+  "evidence_dir": "_offline_selftest/runs/20261003T230505_replay_member_savings_balance_001da8"
 }
 (exit 0)
 $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=10001
@@ -595,7 +595,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [026] success_verified              {}
   [027] replay_end                    {"status": "success", "code": null}
 {
-  "run_id": "run_e9aa8e497ad0",
+  "run_id": "run_20d2dff314cf",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -686,10 +686,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:33.742Z",
-  "finished_at": "2026-09-30T21:53:37.027Z",
-  "duration_ms": 3284,
-  "evidence_dir": "_offline_selftest/runs/20260930T215333_replay_member_savings_balance_497ad0"
+  "started_at": "2026-10-03T23:05:12.610Z",
+  "finished_at": "2026-10-03T23:05:17.365Z",
+  "duration_ms": 4755,
+  "evidence_dir": "_offline_selftest/runs/20261003T230512_replay_member_savings_balance_f314cf"
 }
 (exit 0)
 $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers --arg member_id=10001
@@ -709,7 +709,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [014] success_verified              {}
   [015] replay_end                    {"status": "success", "code": null}
 {
-  "run_id": "run_7271cd6aa899",
+  "run_id": "run_04418fc64430",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -763,10 +763,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:37.983Z",
-  "finished_at": "2026-09-30T21:53:42.629Z",
-  "duration_ms": 4646,
-  "evidence_dir": "_offline_selftest/runs/20260930T215337_replay_member_savings_balance_6aa899"
+  "started_at": "2026-10-03T23:05:20.479Z",
+  "finished_at": "2026-10-03T23:05:26.324Z",
+  "duration_ms": 5844,
+  "evidence_dir": "_offline_selftest/runs/20261003T230520_replay_member_savings_balance_c64430"
 }
 (exit 0)
 
@@ -788,7 +788,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [014] failure                s4     {"code": "APP_ERROR", "message": "The application reported an internal error."}
   [015] replay_end                    {"status": "failed", "code": "APP_ERROR"}
 {
-  "run_id": "run_e00dc585bdef",
+  "run_id": "run_ab145f5336da",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -818,8 +818,8 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     },
     "retryable": false,
     "evidence": [
-      "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef/screens/014_failure.png",
-      "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef/snapshots/013_failure.json"
+      "_offline_selftest/runs/20261003T230530_replay_member_savings_balance_5336da/screens/014_failure.png",
+      "_offline_selftest/runs/20261003T230530_replay_member_savings_balance_5336da/snapshots/013_failure.json"
     ]
   },
   "recoveries": [],
@@ -862,10 +862,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:53:43.520Z",
-  "finished_at": "2026-09-30T21:53:45.361Z",
-  "duration_ms": 1840,
-  "evidence_dir": "_offline_selftest/runs/20260930T215343_replay_member_savings_balance_85bdef"
+  "started_at": "2026-10-03T23:05:30.283Z",
+  "finished_at": "2026-10-03T23:05:33.338Z",
+  "duration_ms": 3055,
+  "evidence_dir": "_offline_selftest/runs/20261003T230530_replay_member_savings_balance_5336da"
 }
 (exit 1)
 
@@ -884,15 +884,15 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [011] checkpoint_ok          s3     {}
   [012] step_action            s4     {"intent": "Open the member's account summary", "action": "click", "strategy": "semantic"}
   [013] recovery               s4     {"detector": "transient", "action": "retry_step", "reason": "checkpoint_not_reached"}
+[operator alice] saw int_de3534ba2fe0 (stuck): target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.
   [014] intervention_opened    s4     {"reason": "target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry re
 
-  >>> HUMAN INTERVENTION REQUIRED [stuck] int_16801acf4f33
+  >>> HUMAN INTERVENTION REQUIRED [stuck] int_de3534ba2fe0
       reason: target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.
-      claim:  cuauto operator claim int_16801acf4f33 --as <you>
+      claim:  cuauto operator claim int_de3534ba2fe0 --as <you>
       live session (CDP): http://127.0.0.1:9222
       console: http://127.0.0.1:8500
 
-[operator alice] saw int_16801acf4f33 (stuck): target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.
 [operator alice] claimed live session http://127.0.0.1:9222
   [015] human_action                  {"action": "fill"}
   [016] human_action                  {"action": "click"}
@@ -904,7 +904,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   [020] success_verified              {}
   [021] replay_end                    {"status": "success", "code": null}
 {
-  "run_id": "run_3ef743f105a9",
+  "run_id": "run_61c170bb3649",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -923,7 +923,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
   ],
   "interventions": [
     {
-      "id": "int_16801acf4f33",
+      "id": "int_de3534ba2fe0",
       "kind": "stuck",
       "reason": "target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.",
       "resolution": "resume",
@@ -974,14 +974,14 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant buffalo-teachers
     }
   ],
   "completed_with_human": true,
-  "started_at": "2026-09-30T21:53:46.545Z",
-  "finished_at": "2026-09-30T21:54:08.733Z",
-  "duration_ms": 22187,
-  "evidence_dir": "_offline_selftest/runs/20260930T215346_replay_member_savings_balance_f105a9"
+  "started_at": "2026-10-03T23:05:37.497Z",
+  "finished_at": "2026-10-03T23:06:01.112Z",
+  "duration_ms": 23615,
+  "evidence_dir": "_offline_selftest/runs/20261003T230537_replay_member_savings_balance_bb3649"
 }
 (exit 0)
 $ cuauto operator list --all
-int_16801acf4f33  stuck    resolved run=run_3ef743f105a9 holder=automation epoch=4
+int_de3534ba2fe0  stuck    resolved run=run_61c170bb3649 holder=automation epoch=4
     reason: target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.
 (exit 0)
 
@@ -1003,7 +1003,7 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant lakeshore-cu --a
   [014] success_verified              {}
   [015] replay_end                    {"status": "success", "code": null}
 {
-  "run_id": "run_18d3135ed431",
+  "run_id": "run_fc22d39dfce2",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -1057,10 +1057,10 @@ $ cuauto replay legacy-corebank.member_savings_balance --tenant lakeshore-cu --a
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:54:09.648Z",
-  "finished_at": "2026-09-30T21:54:11.560Z",
-  "duration_ms": 1911,
-  "evidence_dir": "_offline_selftest/runs/20260930T215409_replay_member_savings_balance_5ed431"
+  "started_at": "2026-10-03T23:06:05.143Z",
+  "finished_at": "2026-10-03T23:06:08.399Z",
+  "duration_ms": 3255,
+  "evidence_dir": "_offline_selftest/runs/20261003T230605_replay_member_savings_balance_9dfce2"
 }
 (exit 0)
 
@@ -1108,7 +1108,7 @@ $ cuauto invoke legacy-corebank__member_savings_balance --tenant buffalo-teacher
   [014] success_verified              {}
   [015] replay_end                    {"status": "success", "code": null}
 {
-  "run_id": "run_ff561c2d8268",
+  "run_id": "run_49fe086dcdf0",
   "kind": "replay",
   "capability_id": "legacy-corebank.member_savings_balance",
   "capability_version": 1,
@@ -1162,11 +1162,11 @@ $ cuauto invoke legacy-corebank__member_savings_balance --tenant buffalo-teacher
     }
   ],
   "completed_with_human": false,
-  "started_at": "2026-09-30T21:54:12.143Z",
-  "finished_at": "2026-09-30T21:54:14.312Z",
-  "duration_ms": 2169,
-  "evidence_dir": "_offline_selftest/runs/20260930T215412_replay_member_savings_balance_2d8268"
+  "started_at": "2026-10-03T23:06:11.059Z",
+  "finished_at": "2026-10-03T23:06:14.333Z",
+  "duration_ms": 3273,
+  "evidence_dir": "_offline_selftest/runs/20261003T230611_replay_member_savings_balance_6dcdf0"
 }
 (exit 0)
 
-[1m== Done. See /home/claude/cu-automation/evidence/_offline_selftest/SUMMARY.md[0m
+[1m== Done. See /sessions/rcw-01qpsfz9rgfq5ctqsxkxwb5m/mnt/cu-automation/evidence/_offline_selftest/SUMMARY.md[0m

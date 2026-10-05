@@ -1,5 +1,5 @@
 # Look up a member's primary savings balance — v1
-# Generated from run run_c0a503d1f8a4. Content is immutable; approval state lives in the registry.
+# Generated from run run_e6ae8b2ddb69. Content is immutable; approval state lives in the registry.
 schema: cuauto.capability/v1
 id: legacy-corebank.member_savings_balance
 name: member_savings_balance
@@ -144,8 +144,8 @@ success:
     timeout_ms: 8000
   require_outputs: true
 provenance:
-  source_run_id: run_c0a503d1f8a4
-  recorded_at: '2026-09-30T21:53:22.501Z'
+  source_run_id: run_e6ae8b2ddb69
+  recorded_at: '2026-10-03T23:04:44.701Z'
   model: scripted-offline
   discovery_goal: Look up member {{member_id}} and read the current balance of their Primary Savings share. Return
     it as output `savings_balance` (type money). Finish on the member account summary screen.

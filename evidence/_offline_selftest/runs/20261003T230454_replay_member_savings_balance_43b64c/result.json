@@ -1,0 +1,55 @@
+{
+  "run_id": "run_8c272843b64c",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "business_outcome",
+  "outputs": {},
+  "outcome": {
+    "code": "RECORD_NOT_FOUND",
+    "message": "No member exists for the supplied member number.",
+    "detector": "record_not_found",
+    "step_id": "s3"
+  },
+  "failure": null,
+  "recoveries": [],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-10-03T23:04:54.402Z",
+  "finished_at": "2026-10-03T23:04:57.146Z",
+  "duration_ms": 2743,
+  "evidence_dir": "_offline_selftest/runs/20261003T230454_replay_member_savings_balance_43b64c"
+}

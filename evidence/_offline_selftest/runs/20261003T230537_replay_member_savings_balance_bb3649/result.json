@@ -1,0 +1,78 @@
+{
+  "run_id": "run_61c170bb3649",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 1,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "[REDACTED:financial]"
+  },
+  "outcome": null,
+  "failure": null,
+  "recoveries": [
+    {
+      "step_id": "s4",
+      "condition": "transient:checkpoint_not_reached",
+      "action": "retry_step",
+      "attempt": 1
+    }
+  ],
+  "interventions": [
+    {
+      "id": "int_de3534ba2fe0",
+      "kind": "stuck",
+      "reason": "target_not_found at step s4 (Open the member's account summary); screen shows: Buffalo Teachers FCU | SUPERVISOR OVERRIDE REQUIRED | This inquiry requires a supervisor override.",
+      "resolution": "resume",
+      "operator": "alice",
+      "human_actions": 2
+    }
+  ],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": true,
+  "started_at": "2026-10-03T23:05:37.497Z",
+  "finished_at": "2026-10-03T23:06:01.112Z",
+  "duration_ms": 23615,
+  "evidence_dir": "_offline_selftest/runs/20261003T230537_replay_member_savings_balance_bb3649"
+}

@@ -7,3 +7,6 @@ __pycache__/
 
 # offline self-test screenshots (regenerable)
 evidence/_offline_selftest/**/*.png
+
+# local-only; keep this file out of git since it tends to accumulate real secrets
+.env.example

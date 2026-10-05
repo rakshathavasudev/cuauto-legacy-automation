@@ -1,5 +1,5 @@
 {
-  "run_id": "run_c0a503d1f8a4",
+  "run_id": "run_e6ae8b2ddb69",
   "status": "success",
   "message": "Primary savings balance located on the account summary",
   "steps": 6,
@@ -7,7 +7,7 @@
     "input_tokens": 0,
     "output_tokens": 0
   },
-  "evidence_dir": "_offline_selftest/runs/20260930T215316_discovery_member_savings_balance_d1f8a4",
+  "evidence_dir": "_offline_selftest/runs/20261003T230436_discovery_member_savings_balance_2ddb69",
   "capability": {
     "id": "legacy-corebank.member_savings_balance",
     "version": 1,
