@@ -48,12 +48,17 @@ class AnthropicClient:
         # call every turn, and disable_parallel_tool_use keeps it to at most one
         resp = self.client.messages.create(model=self.name, max_tokens=self.max_tokens, system=system,
                                            tools=tools, messages=messages,
-                                           tool_choice={"type": "auto", "disable_parallel_tool_use": True})
+                                           tool_choice={"type": "auto", "disable_parallel_tool_use": True},
+                                           thinking={"type": "adaptive", "display": "summarized"})
         content = [b.model_dump(exclude_none=True) for b in resp.content]
-        text = " ".join(b.text for b in resp.content if b.type == "text")
+        # reasoning for the transcript: thinking summaries plus any text; adaptive thinking often skips
+        # simple turns, so fall back to the rationale the model gives in the tool's `why` field
+        text = " ".join([b.thinking for b in resp.content if b.type == "thinking" and b.thinking]
+                        + [b.text for b in resp.content if b.type == "text"])
         tool = next((b for b in resp.content if b.type == "tool_use"), None)
         if tool is None:
             raise RuntimeError("model returned no tool call")
+        text = text or str(tool.input.get("why", ""))
         # keep only the first tool_use so every tool_use in history gets exactly one tool_result
         first = [b for b in content if b.get("type") == "text"] + [next(b for b in content if b.get("type") == "tool_use")]
         return Decision(tool=tool.name, input=dict(tool.input), tool_use_id=tool.id, text=text,

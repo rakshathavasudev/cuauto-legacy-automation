@@ -176,9 +176,10 @@ class DiscoveryAgent:
                 for k in usage:
                     usage[k] += d.usage.get(k, 0)
                 red_input = self.model_redactor.obj(d.input)
-                runlog.event("model_decision", None, tool=d.tool, input=red_input, reasoning=d.text[:400],
+                red_text = self.model_redactor.text(d.text) or ""
+                runlog.event("model_decision", None, tool=d.tool, input=red_input, reasoning=red_text[:400],
                              usage=d.usage)
-                transcript.write(json.dumps({"turn": steps, "ts": utcnow(), "reasoning": d.text, "tool": d.tool,
+                transcript.write(json.dumps({"turn": steps, "ts": utcnow(), "reasoning": red_text, "tool": d.tool,
                                              "input": red_input}) + "\n")
                 transcript.flush()
                 messages.append({"role": "assistant", "content": d.assistant_content})
