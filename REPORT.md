@@ -56,6 +56,12 @@ holds draft / approved / deprecated. Approving therefore never changes what was 
 tampered file fails hash verification on load. Every capability also exports a JSON-schema tool
 definition, used by `catalog` and `invoke`.
 
+**Committed versions.** `capabilities/legacy-corebank/member_savings_balance/` holds v1–v4, each
+from a real discovery run with `claude-sonnet-5-5`. **v4 is the approved version.** The evidence
+was produced from it, and every replay in `evidence/runs/` reports `capability_version: 4`. v1 is
+still a draft, and v2 and v3 are deprecated. A replay without `--version` resolves to the highest
+approved version. The registry status lives in the local SQLite database, not in git.
+
 ## Determinism & error handling
 
 Replay waits *for states*, never for time. Each poll matches app-profile **detectors** before
