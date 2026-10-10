@@ -4,6 +4,9 @@
 
 - `SUMMARY.md` — a one-line-per-run index (status, outcome or failure code, recoveries, interventions).
 - `artifact_member_savings_balance_vN.yaml` — the artifact produced by the real discovery run.
+  The current evidence is for **v4**. `capabilities/` also holds v1–v3: earlier real discovery
+  runs with the same model (`claude-sonnet-5-5`), kept because artifact versions are immutable.
+  Their run evidence is in git history.
 - `discovery_result.json` and `demo_console.log` — the full console transcript of the demo.
 - `runs/<timestamp>_<kind>_<capability>_<id>/` — one directory per run, containing:
   - `events.jsonl` — every decision, action, checkpoint, recovery and handoff event, redacted.
@@ -13,7 +16,8 @@
   - `screens/*.png` — screenshots with money and PII blurred (final state, failures, escalations).
   - `snapshots/*.json` — the redacted semantic view at a failure or escalation. This is what the
     engine saw, not raw DOM.
-  - `transcript.jsonl` — discovery runs only: model turns (reasoning, tool, input), redacted,
+  - `transcript.jsonl` — discovery runs only: model turns (reasoning, tool, input), redacted. `reasoning` is the
+    model's thinking summary when it thinks, otherwise the `why` it gives with the action,
     with images omitted.
 
 The runs to look at are:

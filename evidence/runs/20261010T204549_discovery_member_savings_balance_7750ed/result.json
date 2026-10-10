@@ -7,10 +7,9 @@
     "input_tokens": 26204,
     "output_tokens": 550
   },
-  "evidence_dir": "evidence\\runs\\20261010T204549_discovery_member_savings_balance_7750ed",
+  "model": "claude-sonnet-5-5",
   "capability": {
     "id": "legacy-corebank.member_savings_balance",
-    "version": 4,
-    "registry_status": "draft"
+    "version": 4
   }
 }

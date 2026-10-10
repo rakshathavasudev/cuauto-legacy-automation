@@ -1,0 +1,69 @@
+{
+  "run_id": "run_5355bc5038ec",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 4,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "[REDACTED:financial]"
+  },
+  "outcome": null,
+  "failure": null,
+  "recoveries": [
+    {
+      "step_id": "s4",
+      "condition": "system_notice",
+      "action": "click",
+      "attempt": 1
+    }
+  ],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-10-10T20:46:14.396Z",
+  "finished_at": "2026-10-10T20:46:16.650Z",
+  "duration_ms": 2250,
+  "evidence_dir": "evidence\\runs\\20261010T204614_replay_member_savings_balance_5038ec"
+}
