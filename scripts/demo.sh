@@ -8,16 +8,17 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 export PYTHONUNBUFFERED=1
+ROOT="$(pwd -W 2>/dev/null || pwd)"  # native C:/... path under Git Bash so Windows Python can open it
 if [[ "${OFFLINE:-0}" == "1" ]]; then
-  export CUAUTO_EVIDENCE_DIR="$PWD/evidence/_offline_selftest" CUAUTO_DB="$PWD/var/offline.db"
-  export CUAUTO_CAPABILITIES_DIR="$PWD/var/offline_capabilities"
+  export CUAUTO_EVIDENCE_DIR="$ROOT/evidence/_offline_selftest" CUAUTO_DB="$ROOT/var/offline.db"
+  export CUAUTO_CAPABILITIES_DIR="$ROOT/var/offline_capabilities"
   LLM="scripted:tests/fixtures/plan_member_savings_balance.json"; FORCE="--force"
 else
-  : "${ANTHROPIC_API_KEY:?set ANTHROPIC_API_KEY (or put it in .env) — or run OFFLINE=1}" 2>/dev/null || \
-    grep -q '^ANTHROPIC_API_KEY=.\+' .env || { echo "ANTHROPIC_API_KEY missing (env or .env)"; exit 1; }
+  [[ -n "${ANTHROPIC_API_KEY:-}" ]] || grep -q '^ANTHROPIC_API_KEY=.\+' .env 2>/dev/null || \
+    { echo "set ANTHROPIC_API_KEY (or put it in .env) — or run OFFLINE=1"; exit 1; }
   LLM="anthropic"; FORCE=""
 fi
-EV="${CUAUTO_EVIDENCE_DIR:-$PWD/evidence}"
+EV="${CUAUTO_EVIDENCE_DIR:-$ROOT/evidence}"
 mkdir -p "$EV" var
 LOG="$EV/demo_console.log"; : > "$LOG"
 say() { printf '\n\033[1m== %s\033[0m\n' "$*" | tee -a "$LOG"; }

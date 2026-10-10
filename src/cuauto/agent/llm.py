@@ -35,7 +35,7 @@ class LLMClient(Protocol):
 
 
 class AnthropicClient:
-    def __init__(self, model: str, api_key: str | None, max_tokens: int = 1024):
+    def __init__(self, model: str, api_key: str | None, max_tokens: int = 16000):
         import anthropic
         if not api_key:
             raise RuntimeError("ANTHROPIC_API_KEY is not set (see .env.example)")
@@ -44,8 +44,11 @@ class AnthropicClient:
         self.max_tokens = max_tokens
 
     def decide(self, system: str, messages: list[dict], tools: list[dict], obs: Observation) -> Decision:
+        # forced tool_choice (any/tool) is rejected by current models; the system prompt requires a tool
+        # call every turn, and disable_parallel_tool_use keeps it to at most one
         resp = self.client.messages.create(model=self.name, max_tokens=self.max_tokens, system=system,
-                                           tools=tools, tool_choice={"type": "any"}, messages=messages)
+                                           tools=tools, messages=messages,
+                                           tool_choice={"type": "auto", "disable_parallel_tool_use": True})
         content = [b.model_dump(exclude_none=True) for b in resp.content]
         text = " ".join(b.text for b in resp.content if b.type == "text")
         tool = next((b for b in resp.content if b.type == "tool_use"), None)
