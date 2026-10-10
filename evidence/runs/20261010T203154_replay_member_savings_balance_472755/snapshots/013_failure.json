@@ -1,0 +1,62 @@
+{
+ "frames": [
+  {
+   "name": "top",
+   "url": "http://127.0.0.1:8401/",
+   "title": "CoreBank 4.2"
+  },
+  {
+   "name": "nav",
+   "url": "http://127.0.0.1:8401/nav",
+   "title": "CoreBank 4.2"
+  },
+  {
+   "name": "main",
+   "url": "http://127.0.0.1:8401/cgi/mbrdtl?m=[input:member_id]&tok=155a1b",
+   "title": "CoreBank 4.2"
+  }
+ ],
+ "items": [
+  {
+   "frame": "nav",
+   "kind": "text",
+   "role": "text",
+   "name": "Buffalo Teachers FCU",
+   "ctx": {}
+  },
+  {
+   "frame": "nav",
+   "kind": "control",
+   "role": "link",
+   "name": "Member Inquiry",
+   "ctx": {
+    "row_label": "Buffalo Teachers FCU",
+    "field_label": "Buffalo Teachers FCU"
+   }
+  },
+  {
+   "frame": "nav",
+   "kind": "control",
+   "role": "link",
+   "name": "Sign Off",
+   "ctx": {
+    "row_label": "Buffalo Teachers FCU",
+    "field_label": "Member Inquiry"
+   }
+  },
+  {
+   "frame": "main",
+   "kind": "text",
+   "role": "text",
+   "name": "SYSTEM ERROR",
+   "ctx": {}
+  },
+  {
+   "frame": "main",
+   "kind": "text",
+   "role": "text",
+   "name": "AN UNEXPECTED ERROR HAS OCCURRED. ABEND S0C7 IN MODULE CBMBR210. CONTACT THE HELP DESK.",
+   "ctx": {}
+  }
+ ]
+}

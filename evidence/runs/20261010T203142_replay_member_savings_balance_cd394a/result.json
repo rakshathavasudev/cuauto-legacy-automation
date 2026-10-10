@@ -1,0 +1,99 @@
+{
+  "run_id": "run_5309c3cd394a",
+  "kind": "replay",
+  "capability_id": "legacy-corebank.member_savings_balance",
+  "capability_version": 2,
+  "tenant_id": "buffalo-teachers",
+  "status": "success",
+  "outputs": {
+    "savings_balance": "[REDACTED:financial]"
+  },
+  "outcome": null,
+  "failure": null,
+  "recoveries": [
+    {
+      "step_id": "s3",
+      "condition": "session_expired",
+      "action": "reauthenticate_and_restart",
+      "attempt": 1
+    }
+  ],
+  "interventions": [],
+  "locators": [
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "auth3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s1",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s2",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s3",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "s4",
+      "strategy": "semantic",
+      "drift": false
+    },
+    {
+      "step_id": "out:savings_balance",
+      "strategy": "semantic",
+      "drift": false
+    }
+  ],
+  "completed_with_human": false,
+  "started_at": "2026-10-10T20:31:42.295Z",
+  "finished_at": "2026-10-10T20:31:45.402Z",
+  "duration_ms": 3110,
+  "evidence_dir": "evidence\\runs\\20261010T203142_replay_member_savings_balance_cd394a"
+}

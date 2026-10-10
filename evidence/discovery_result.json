@@ -1,0 +1,16 @@
+{
+  "run_id": "run_7e615c65405c",
+  "status": "success",
+  "message": "Looked up the member and extracted the Primary Savings (S00) current balance as savings_balance.",
+  "steps": 6,
+  "usage": {
+    "input_tokens": 26204,
+    "output_tokens": 549
+  },
+  "evidence_dir": "evidence\\runs\\20261010T203113_discovery_member_savings_balance_65405c",
+  "capability": {
+    "id": "legacy-corebank.member_savings_balance",
+    "version": 2,
+    "registry_status": "draft"
+  }
+}

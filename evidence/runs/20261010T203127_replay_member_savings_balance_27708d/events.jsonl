@@ -1,0 +1,2 @@
+{"seq": 1, "ts": "2026-10-10T20:31:27.941Z", "run_id": "run_07afd727708d", "type": "replay_start", "step_id": null, "capability": "legacy-corebank.member_savings_balance", "version": 2, "registry_status": "draft", "args": {"member_id": "[input:member_id]"}, "on_stuck": "fail"}
+{"seq": 2, "ts": "2026-10-10T20:31:27.957Z", "run_id": "run_07afd727708d", "type": "replay_end", "step_id": null, "status": "rejected", "code": "NOT_APPROVED", "duration_ms": 0}

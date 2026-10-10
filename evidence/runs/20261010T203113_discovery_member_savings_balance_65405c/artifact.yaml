@@ -1,0 +1,150 @@
+schema: cuauto.capability/v1
+id: legacy-corebank.member_savings_balance
+name: member_savings_balance
+version: 2
+title: Look up a member's primary savings balance
+description: Look up member {{member_id}} and read the current balance of their Primary Savings share. Return it
+  as output `savings_balance` (type money). Finish on the member account summary screen.
+app:
+  app_id: legacy-corebank
+  surface: legacy_web
+  compatible_versions: '>=4.2,<5.0'
+  recorded_on_tenant: buffalo-teachers
+  recorded_on_version: 4.2.3
+requires_auth: true
+entry:
+  path: /
+side_effects: reversible
+inputs:
+- name: member_id
+  type: string
+  description: Member number (5-8 digits)
+  pattern: \d{5,8}
+  required: true
+  sensitivity: pii
+outputs:
+- name: savings_balance
+  type: money
+  description: Current balance of Primary Savings (S00)
+  source:
+    kind: text
+    role: text
+    context:
+      frame: main
+      row_label: S00
+      column_header: Current Balance
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/table[3]/tbody[1]/tr[2]/td[3]
+      note: recorded DOM path; drift if used
+  sensitivity: financial
+  required: true
+outcomes:
+- code: RECORD_NOT_FOUND
+  detector: record_not_found
+  description: No member exists for the supplied member number.
+- code: ACCESS_DENIED
+  detector: access_denied
+  description: The operator account is not permitted to view this record.
+- code: INPUT_REJECTED_BY_APP
+  detector: input_rejected
+  description: The application rejected the supplied input.
+steps:
+- id: s1
+  intent: Open Member Inquiry
+  action: click
+  target:
+    kind: control
+    role: link
+    name: Member Inquiry
+    context:
+      frame: nav
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/table[1]/tbody[1]/tr[1]/td[2]/a[1]
+      note: recorded DOM path; drift if used
+  risk: safe
+  expect:
+    frame: main
+    url_pattern: /cgi/mbrinq*
+    text_present:
+    - MEMBER INQUIRY
+    text_absent: []
+    timeout_ms: 8000
+  origin: model
+- id: s2
+  intent: Enter member number
+  action: fill
+  target:
+    kind: control
+    role: textbox
+    name: Member Number
+    context:
+      frame: main
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/form[1]/table[1]/tbody[1]/tr[1]/td[2]/input[1]
+      note: recorded DOM path; drift if used
+  value: '{{member_id}}'
+  risk: reversible
+  origin: model
+- id: s3
+  intent: Search
+  action: click
+  target:
+    kind: control
+    role: button
+    name: Search
+    context:
+      frame: main
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/form[1]/input[1]
+      note: recorded DOM path; drift if used
+  risk: safe
+  expect:
+    frame: main
+    url_pattern: /cgi/mbrsrch*
+    text_present:
+    - MEMBER SEARCH RESULTS
+    text_absent: []
+    timeout_ms: 8000
+  origin: model
+- id: s4
+  intent: View member
+  action: click
+  target:
+    kind: control
+    role: link
+    name: View
+    context:
+      frame: main
+      row_label: '{{member_id}}'
+    fallbacks:
+    - strategy: xpath
+      value: /html[1]/body[1]/font[1]/table[2]/tbody[1]/tr[2]/td[4]/a[1]
+      note: recorded DOM path; drift if used
+  risk: safe
+  expect:
+    frame: main
+    url_pattern: /cgi/mbrdtl*
+    text_present:
+    - MEMBER ACCOUNT SUMMARY
+    text_absent: []
+    timeout_ms: 8000
+  origin: model
+success:
+  all_of:
+  - frame: main
+    text_present:
+    - MEMBER ACCOUNT SUMMARY
+    text_absent: []
+    timeout_ms: 8000
+  require_outputs: true
+provenance:
+  source_run_id: run_7e615c65405c
+  recorded_at: '2026-10-10T20:31:25.990Z'
+  model: claude-sonnet-5-5
+  discovery_goal: Look up member {{member_id}} and read the current balance of their Primary Savings share. Return
+    it as output `savings_balance` (type money). Finish on the member account summary screen.
+  human_steps: 0
