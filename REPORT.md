@@ -18,6 +18,40 @@ system performs the action, enforces policy, and records what *actually* happene
 **Replay** loads an approved artifact and runs, for each step, "classify state → resolve target →
 gate risk → act → wait for checkpoint". It never consults a model.
 
+```mermaid
+flowchart TB
+  subgraph DISC["Discovery: once per capability, model in the loop"]
+    direction LR
+    GOAL["Goal YAML<br/>typed, sensitivity-tagged inputs"] --> LOOP["Agent loop<br/>observe → decide → act"]
+    LLM(["Claude model"]) <-->|"redacted semantic view<br/>+ blurred screenshot<br/>⇄ exactly one tool call"| LOOP
+    LOOP --> REC["Recorder<br/>trace → artifact"]
+  end
+
+  REC --> ART["Capability artifact<br/>vN.yaml · immutable · sha256"]
+  ART --> REVIEW{"Human review<br/>capabilities approve"}
+  REVIEW -->|"status: approved"| REG[("Registry<br/>SQLite")]
+
+  subgraph REPLAY["Replay: every call, no model"]
+    direction LR
+    AGENT["Calling agent<br/>catalog · invoke"] --> ENG["Replay engine"]
+    ENG --> RESULT["Typed result<br/>success · business_outcome<br/>failed · rejected"]
+  end
+  REG --> ENG
+
+  subgraph CORE["Shared execution core"]
+    direction LR
+    SURF["Surface adapter<br/>Playwright today · UIA/AX designed"]
+    POL["Policy<br/>action · navigation · network"]
+    RED["Redaction"]
+  end
+  LOOP --> CORE
+  ENG --> CORE
+  CORE --> APP["Legacy app<br/>tenants of one vendor product"]
+  ENG -.->|"unexplained state"| HUMAN["Operator<br/>same live session"]
+  LOOP -.->|"request_human"| HUMAN
+  CORE --> EVID[("Evidence<br/>events · screenshots · snapshots")]
+```
+
 Everything above the surface layer speaks only in `UIItem`s and semantic `Target`s. The
 Playwright adapter is one implementation. A desktop adapter would build the same items from the
 UIA/AX accessibility tree. The target is a deliberately hostile mock: framesets, table layout, no
@@ -77,6 +111,32 @@ checking the checkpoint. Detectors classify every recognisable runtime state:
 Contract problems (bad arguments, unapproved version, wrong app, tenant version out of range)
 return `status: rejected` *before the UI is touched*.
 
+The per-step loop, with every exit it can take:
+
+```mermaid
+flowchart TD
+  LOAD(["Load artifact · verify sha256<br/>check approval · args · tenant version"]) -->|"contract problem"| REJ["rejected<br/>UI never touched"]
+  LOAD --> AUTH["Auth steps from app profile"] --> STEP["Next step"]
+  STEP --> RESOLVE["Resolve semantic target<br/>role + name + context · label aliases"]
+  RESOLVE -->|"ambiguous, no recorded nth"| FAIL
+  RESOLVE --> GATE{"Risk gate"}
+  GATE -->|"irreversible, not confirmed"| APPROVAL["approval intervention"]
+  APPROVAL -->|"approve"| ACT
+  GATE -->|"allowed"| ACT["Act"]
+  ACT --> POLL{"Poll: detectors first"}
+  POLL -->|"business"| BIZ["business_outcome<br/>RECORD_NOT_FOUND · ACCESS_DENIED"]
+  POLL -->|"recoverable"| RECOVER["Dismiss notice, or re-auth<br/>+ restart if nothing committed"]
+  RECOVER --> POLL
+  POLL -->|"hard"| FAIL["failed<br/>code · step · expected vs observed<br/>screenshot + snapshot"]
+  POLL -->|"no detector, checkpoint reached"| MORE{"More steps?"}
+  MORE -->|"yes"| STEP
+  MORE -->|"no"| SUCCESS["Verify success condition → success"]
+  POLL -->|"no detector, checkpoint never reached"| STUCK{"Unexplained state"}
+  STUCK -->|"safe step, first time"| ACT
+  STUCK -->|"--on-stuck escalate"| ESC["Escalate to operator"] --> RESYNC["Re-sync to furthest<br/>satisfied checkpoint"] --> STEP
+  STUCK -->|"otherwise"| FAIL
+```
+
 **Unexplained states** are those with no matching detector where the checkpoint is never
 reached. A safe step is retried once. After that the run either escalates (with
 `--on-stuck escalate`) or fails.
@@ -106,6 +166,25 @@ labels: "Member Lookup", "Member #", "Find", "New Share". The tenant's `label_al
 difference, and the run reports `semantic+alias` per step. A tenant outside the compatible range
 is rejected with `INCOMPATIBLE_VERSION` rather than attempted.
 
+```mermaid
+flowchart TB
+  GP["Global policy<br/>allowlist · irreversible patterns"]
+  AP["App profile: legacy-corebank<br/>auth flow · detectors · sensitive labels<br/>risk overrides · version_range"]
+  CAP["Capability<br/>recorded against the app profile"]
+  T1["Tenant: buffalo-teachers<br/>v4.2.3 · variant a"]
+  T2["Tenant: lakeshore-cu<br/>v4.3.0 · variant b · label_aliases"]
+  T1 --> RT1["Runtime<br/>tenant → profile → policy"]
+  T2 --> RT2["Runtime<br/>tenant → profile → policy"]
+  GP --> RT1
+  GP --> RT2
+  AP --> RT1
+  AP --> RT2
+  CAP --> RT1
+  CAP --> RT2
+  RT1 --> R1["locators: semantic"]
+  RT2 --> R2["locators: semantic+alias"]
+```
+
 For desktop apps and Citrix-style screens, the same `Surface` protocol applies. A UIA/AX adapter
 yields the same role/name/context items. A pixels-only surface would use OCR or VLM grounding,
 with `coordinates` fallbacks flagged as drift. Its checkpoints would become text-present checks
@@ -125,6 +204,36 @@ compare-and-set on the epoch. The lifecycle is:
 The automation re-checks the lease before *every* action, so a stale holder can never act. On
 timeout it takes the session back only if nobody claimed it; it never snatches control from a
 human.
+
+```mermaid
+stateDiagram-v2
+  direction LR
+  [*] --> automation
+  automation --> none: escalate · opens intervention
+  none --> human: claim · exclusive CAS on epoch
+  none --> automation: timeout · nobody claimed
+  human --> automation: release · resume / abort / approve / deny
+  automation --> [*]: run ends
+```
+
+The handoff for one intervention, end to end:
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant E as Replay engine
+  participant L as control_leases
+  participant B as Live browser (CDP)
+  participant O as Operator
+  E->>L: CAS automation → none, open intervention
+  O->>L: claim: CAS none → human:alice, epoch + 1
+  O->>B: fill / click on the same session
+  B-->>E: page-side event hook
+  E->>E: redact, store in human_actions
+  O->>L: release: resume → automation
+  E->>L: re-check lease before every action
+  E->>B: re-sync to furthest satisfied checkpoint, continue
+```
 
 **Same live session.** The browser is launched with a CDP endpoint, which is recorded on the
 intervention. The operator attaches to that same browser (same cookies and frame state) through
@@ -175,6 +284,19 @@ they are redacted as `[SECRET]` everywhere.
 
 Screenshots are blurred by the same rules. Persisted outputs are redacted by their declared
 sensitivity; only the caller receives real values. Raw DOM is never persisted.
+
+```mermaid
+flowchart LR
+  SCREEN["Screen<br/>semantic items + screenshot"] --> S1["1 · registered secrets<br/>→ [SECRET]"]
+  S1 --> S2["2 · registered input values<br/>→ {{param}} / [input:…]"]
+  S2 --> S3["3 · regexes<br/>SSN · card · account · money · e-mail · phone"]
+  S3 --> S4["4 · semantic rule<br/>sensitive row/column label → [PII]"]
+  S4 --> MODEL(["Model"])
+  S4 --> LOGS[("events · transcripts · snapshots")]
+  S4 --> BLUR["Blurred screenshots"]
+  OUT["Extracted outputs"] -->|"real values"| CALLER["Live caller only"]
+  OUT -->|"[REDACTED:sensitivity]"| LOGS
+```
 
 ## Cuts
 
